@@ -1,5 +1,13 @@
 # Middleware_JMS_RMI
 
+Server：
+program arguments : -Djava.rmi.server.useCodebaseOnly=false
+VM arguments : -Djava.rmi.server.codebase=http://localhost:3000/
+
+Client:
+VM arguments : -Djava.security.manager -Djava.security.policy="/Users/Bullshit/Documents/workspace/MiddlewareClient/src/tp1/rmi.policy"(emplacement du fichier de policy)
+
+
 #### Serveur
 + RMI
     + logIn (username,  password) 
