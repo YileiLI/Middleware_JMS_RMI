@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 
+// 这个class 可能用不到了？
 public class Resultat implements Serializable{
 	transient int val = 1000;
 	String mess = "Coucou";

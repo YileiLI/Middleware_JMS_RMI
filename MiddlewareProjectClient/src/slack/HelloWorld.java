@@ -2,6 +2,7 @@ package slack;
 
 import java.rmi.*;
 
+// 这个可能也用不到了？
 public interface HelloWorld extends Remote {
 	public String sayHello() throws RemoteException;
 	// on d�clare ici que sayHello peut jeter l exception, et donc, meme pas besoin
