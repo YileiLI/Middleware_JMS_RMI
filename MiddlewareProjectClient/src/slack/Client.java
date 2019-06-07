@@ -13,11 +13,17 @@ import java.rmi.RemoteException;
 
 public class Client {
 
+    
+    
+
 	public static void main(String[] args){
 
 
-		System.out.println("Recherche de l objet serveur");
-		String myname = args[0];
+//		System.out.println("Recherche de l objet serveur");
+//		String myname = args[0];
+	    String username = "";
+	    String password = "";
+	    String pseudo = null;
 
 		if (System.getSecurityManager() == null) { 
 			System.setSecurityManager(new SecurityManager()); 
@@ -25,12 +31,12 @@ public class Client {
 		/*
 		On peut remplacer ces lignes ci dessus en �crivant -Djava.security.manager 
 		et pour debugger -Djava.security.debug=policy */
-		HelloWorld hw=null; // hw est un stub vers l objet remote, renseign� par le lookup
+		Service service=null; // hw est un stub vers l objet remote, renseign� par le lookup
 		try {
 			// rechercher sur cette machine, localhost, un objet remote de nom HelloWorld 			
-			Object o=Naming.lookup("rmi://127.0.0.1:2002/HelloWorld");
+			Object o=Naming.lookup("rmi://127.0.0.1:2002/Service");
 			//System.out.println("proxy recu est " + o);
-			hw = (HelloWorld) o;
+			service = (Service) o;
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,37 +47,103 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String rs=null;
-		Resultat r=null;
+		
 		try {
-			rs = hw.sayHello();
-			r = hw.sayResultat();
+		    //log in
+		    boolean flag = true;
+		    java.io.BufferedReader stdin =
+	                new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+		    while (flag) {
+		        System.out.println("Please enter the username:");
+		        String s = stdin.readLine();
+
+                if (s.length()>0)
+                {
+                    username = s;
+                }
+                
+                System.out.println("Please enter the password:");
+                s = stdin.readLine();
+
+                if (s.length()>0)
+                {
+                    password = s;
+                }
+                
+                //verify the username and password
+	            pseudo = service.login(username, password);
+	            if (pseudo != null) {
+                    flag = false;
+                    System.out.println("Welcome back " + pseudo);
+                }else {
+                    System.out.println("Please try again. \n");
+                }
+                
+            }
+		    
+		    //show menu
+		    while (true) {
+		        StringBuffer menu = new StringBuffer();
+		        menu.append("==================MENU=========================\n");
+		        menu.append("options:\n");
+		        menu.append("  1 - to see all the groups existed\n");
+		        menu.append("  2 - to subscribe a group\n");
+		        menu.append("  3 - open one group discussion\n");
+		        menu.append("  CTRL + C to exit\n");
+		        menu.append("===========Enter the option number=============\n");
+		        System.out.println(menu);
+		        stdin =new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+		        String opt;
+		        try {
+		            opt = stdin.readLine();
+		            switch (Integer.parseInt(opt)) {
+	                case 1:
+	                    System.out.println(service.getAllGroups(username));
+	                    break;
+	                    
+	                case 2:
+	                    System.out.println("Enter the group name to subscrib");    
+	                    String gr = stdin.readLine();
+	                    if (service.subscribeGroup(username, gr)) {
+	                        DurableChat durableChat = new DurableChat();
+	                        durableChat.DurableChatter (pseudo, password, gr, false);
+	                        System.out.println(gr + " subscribed √");
+                        } else {
+                            System.out.println(gr + " not subscribed. Maybe try later.");
+                        }
+	                    break;
+	                case 3:
+	                    System.out.println("Enter the group name to open");
+	                    gr = stdin.readLine();
+                        if (service.isSubscribeGroup(username, gr)) {
+                            DurableChat durableChat = new DurableChat();
+                            durableChat.DurableChatter (pseudo, password, gr, true);
+
+                        } else {
+                            System.out.println(gr + " not subscribed. Please cubsribe first.");
+                        }
+	                    break;
+	                    
+	                default:
+	                    System.out.println("Please try again.");
+	                    break;
+	                }
+		        } catch (IOException e) {
+		            // TODO Auto-generated catch block
+		            e.printStackTrace();
+		        }
+		        
+                
+            }
+			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		System.out.println("Resultat de l'appel via le remote objet trouv� sur le registry 2002  est "+rs);
-		System.out.println("Resultat de l'appel via le remote objet trouv� sur le registry 2002  est "+r);
-		try {
-			FileOutputStream fo=new FileOutputStream(new File("essai"));
-			fo.write(2);
-			// si on n a pas de permission de write fichier, ce write ne fonctionne pas 
-			// Il faut que nous ayons un securityManager activ� et les bonnes permissions
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		} catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		
-		Service s=null; 		
-		try {
-			s=hw.logon();
-			System.out.println("On a recu une ref vers service distant "+s );
-			for (int i=1;i<14;i++){
-				int res=s.setVal(2,myname); // myname est une chaine == son nom
-				Thread.sleep(1000);
-				System.out.println("Thread "+Thread.currentThread().getName() +" Valeur rendue par le service"+res);
-			}
-			}catch (Exception e) {
-			e.printStackTrace();
-		}
+
 	}
 }

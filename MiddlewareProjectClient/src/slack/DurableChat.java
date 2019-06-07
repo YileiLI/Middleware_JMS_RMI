@@ -1,7 +1,5 @@
 package slack;
 
-import java.util.List;
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -57,19 +55,17 @@ Suggested demonstration:
 import org.apache.activemq.*;
 
 
-public class DurableChat     // to handle message subscriptions
+public class DurableChat implements
+     javax.jms.MessageListener      // to handle message subscriptions
 {
-    private static final String APP_TOPIC = "jms.samples.durablechat";
     private static final String DEFAULT_BROKER_NAME = "tcp://localhost:61616";
-    private static final String DEFAULT_PASSWORD = "password";
-    private static final long   MESSAGE_LIFESPAN = 1800000; //30 minutes
 
     private javax.jms.Connection connection = null;
     private javax.jms.Session pubSession = null;
     private javax.jms.Session subSession = null;
 
 
-    public void DurableChatter(String username, String password, String group)
+    public void DurableChatter(String username, String password, String group, boolean open)
     {
         javax.jms.MessageProducer publisher = null;
         javax.jms.MessageConsumer subscriber = null;
@@ -95,11 +91,18 @@ public class DurableChat     // to handle message subscriptions
 
         //Create Publisher and Durable Subscriber:
         try{
+
             topic = pubSession.createTopic(group);
             subscriber = subSession.createDurableSubscriber(topic, username);
+            
             publisher = pubSession.createProducer(topic);
-            System.out.println(username + " subscribed " + topic);
-            connection.close();
+            if (open) {
+                connection.start();
+                subscriber.setMessageListener(this);
+            }
+            else{
+                connection.close();
+            }
         }
         catch (javax.jms.JMSException jmse){
             System.out.println("Error: connection not started.");
@@ -107,7 +110,49 @@ public class DurableChat     // to handle message subscriptions
             System.exit(1);
         }
 
+        //Wait for user input
+        if (open) {
+            try
+            {
+            System.out.println("\nDurableChat application:\n"
+            					+ "========================\n"
+            					+ "The user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".\n"
+								+ "The application will publish messages to the " + group + " topic.\n"
+                                + "The application also creates a durable subscription to that topic to consume any messages published there.\n\n"
+                                + "Type some text, and then press Enter to publish it as a TextMesssage from " + username + ". (Press Enter to back to the menu)\n");
+            java.io.BufferedReader stdin =
+                new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            while (true)
+            {
+                String s = stdin.readLine();
+
+                if(s.length()==0){
+                    exit();
+                    break;
+                }
+                else if (s.length()>0)
+                {
+                    try
+                    {
+                        javax.jms.TextMessage msg = pubSession.createTextMessage();
+                        msg.setText(username + ": " + s);
+                        //Publish the message persistantly:
+                        publisher.send(
+                            msg                              //message
+                            );                 //Time to Live
+                    }
+                    catch (javax.jms.JMSException jmse){
+                        System.err.println("Error publishing message:" + jmse.getMessage());
+                    }
+                }
+            }
+        }
         
+        catch (java.io.IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+        }
     }
 
     /** Message Handler**/
@@ -123,7 +168,13 @@ public class DurableChat     // to handle message subscriptions
             try
             {
                 String string = textMessage.getText();
-                System.out.println( string );
+                String[] strings = string.split(" ");
+                System.err.println (strings[0]);
+                String text = "";
+                for (int i = 1; i < strings.length; i++) {
+                    text += strings[i] + " ";
+                }
+                System.out.println(text);
             }
             catch (javax.jms.JMSException jmse)
             {
@@ -150,7 +201,7 @@ public class DurableChat     // to handle message subscriptions
             jmse.printStackTrace();
         }
 
-        System.exit(0);
+        //System.exit(0);
     }
 
     //

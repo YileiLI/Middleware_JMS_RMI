@@ -5,7 +5,8 @@ import java.rmi.RemoteException;
 
 
 public interface Service extends Remote {
-	int getVal() throws RemoteException;
-	int setVal(int v, String cname) throws RemoteException;
-	// le service offert consiste à multiplier val par facteur v 
+    String login(String username, String password)throws RemoteException;//retourner le pseudo
+    String getAllGroups(String username) throws RemoteException;//retourner la liste de groupes
+    boolean subscribeGroup(String username, String group) throws RemoteException;//subscribe un nouveau groupe
+    boolean isSubscribeGroup(String username, String group) throws RemoteException;
 }

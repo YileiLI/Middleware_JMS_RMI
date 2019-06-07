@@ -3,6 +3,7 @@ package slack;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 
 
 public class Serveur {
@@ -10,9 +11,24 @@ public class Serveur {
         System.out.println("Creation de l'objet  serveur");
         System.out.println("System property codebase" + System.getProperty("java.rmi.server.codebase"));
         
-        HelloWorld hellow=null;
+        //initial data
+        Data data = new Data();
+        
+        // Start the JMS client for the "chat".
+        DurableChat durableChat = new DurableChat();
+        String[] users = data.getPseudo();
+        String[] pwd = data.getPassword();
+        ArrayList<ArrayList<String>> sub = data.getSubscription();
+        for (int i = 0; i < users.length; i++) {
+            for (int j = 0; j < sub.get(i).size(); j++) {
+                durableChat.DurableChatter(users[i], pwd[i], sub.get(i).get(j));
+            }
+        }
+        System.out.println("Initial data and jms");
+        
+        Service service=null;
         try {
-            hellow = new HelloWorldImpl();
+            service = new ServiceImpl(data);
         } catch (RemoteException e1) {
             e1.printStackTrace();
         }
@@ -20,7 +36,7 @@ public class Serveur {
         try {
             Registry registry = LocateRegistry.createRegistry(2002);
             System.out.println("on a lacces au registry ecoutant sur 2002");
-            registry.rebind("HelloWorld", hellow);
+            registry.rebind("Service", service);
             // ou bien, en utilisant java.rmi.Naming
             // java.rmi.Naming.rebind("HelloWorld", hellow); // nom choisi dans l'annuaire, celui ci étant le registry ecoutant 
             // derrière le port 1099,  est HelloWorld
