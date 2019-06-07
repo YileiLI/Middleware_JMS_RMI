@@ -165,13 +165,7 @@ public class DurableChat implements
             try
             {
                 String string = textMessage.getText();
-                String[] strings = string.split(" ");
-                System.err.println (strings[0]);
-                String text = "";
-                for (int i = 1; i < strings.length; i++) {
-                    text += strings[i] + " ";
-                }
-                System.out.println(text);
+                System.err.println (string);
                 
             }
             catch (javax.jms.JMSException jmse)
