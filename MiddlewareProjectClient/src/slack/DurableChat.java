@@ -93,7 +93,7 @@ public class DurableChat implements
         try{
 
             topic = pubSession.createTopic(group);
-            subscriber = subSession.createDurableSubscriber(topic, username);
+            subscriber = subSession.createDurableSubscriber(topic, username+group);
             
             publisher = pubSession.createProducer(topic);
             if (open) {
@@ -137,9 +137,7 @@ public class DurableChat implements
                         javax.jms.TextMessage msg = pubSession.createTextMessage();
                         msg.setText(username + ": " + s);
                         //Publish the message persistantly:
-                        publisher.send(
-                            msg                              //message
-                            );                 //Time to Live
+                        publisher.send(msg);
                     }
                     catch (javax.jms.JMSException jmse){
                         System.err.println("Error publishing message:" + jmse.getMessage());

@@ -54,21 +54,46 @@ public class Client {
 		    java.io.BufferedReader stdin =
 	                new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 		    while (flag) {
-		        System.out.println("Please enter the username:");
-		        String s = stdin.readLine();
+		        if (args.length != 0) {
+		            for (int i = 0; i < args.length; i++) {
+		                String arg = args[i];
 
-                if (s.length()>0)
-                {
-                    username = s;
-                }
-                
-                System.out.println("Please enter the password:");
-                s = stdin.readLine();
 
-                if (s.length()>0)
-                {
-                    password = s;
+		                if (arg.equals("-u")) {
+		                    if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
+		                        username = args[++i];
+		                    }
+		                    continue;
+		                }
+
+		                if (arg.equals("-p")) {
+		                    if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
+		                        password = args[++i];
+		                        
+		                        }
+		                    }
+		                    
+		                    continue;
+		                }
                 }
+                    if (username.equals("")) {
+                        System.out.println("Please enter the username:");
+                        String s = stdin.readLine();
+
+                        if (s.length()>0)
+                        {
+                            username = s;
+                        }
+                    }
+                    if (password.equals("")) {
+                        System.out.println("Please enter the password:");
+                        String s = stdin.readLine();
+
+                        if (s.length()>0)
+                        {
+                            password = s;
+                        }
+                    }
                 
                 //verify the username and password
 	            pseudo = service.login(username, password);

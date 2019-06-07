@@ -2,6 +2,8 @@ package slack;
 
 import java.util.List;
 
+import javax.jms.Destination;
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -55,6 +57,7 @@ Suggested demonstration:
 
 */
 import org.apache.activemq.*;
+import org.apache.activemq.command.ActiveMQTopic;
 
 
 public class DurableChat     // to handle message subscriptions
@@ -71,7 +74,6 @@ public class DurableChat     // to handle message subscriptions
 
     public void DurableChatter(String username, String password, String group)
     {
-        javax.jms.MessageProducer publisher = null;
         javax.jms.MessageConsumer subscriber = null;
         javax.jms.Topic topic = null;
 
@@ -96,8 +98,7 @@ public class DurableChat     // to handle message subscriptions
         //Create Publisher and Durable Subscriber:
         try{
             topic = pubSession.createTopic(group);
-            subscriber = subSession.createDurableSubscriber(topic, username);
-            publisher = pubSession.createProducer(topic);
+            subscriber = subSession.createDurableSubscriber(topic, username+group);
             System.out.println(username + " subscribed " + topic);
             connection.close();
         }
