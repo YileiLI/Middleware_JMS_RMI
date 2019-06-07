@@ -64,7 +64,6 @@ public class DurableChat implements
     private javax.jms.Session pubSession = null;
     private javax.jms.Session subSession = null;
 
-
     public void DurableChatter(String username, String password, String group, boolean open)
     {
         javax.jms.MessageProducer publisher = null;
@@ -173,6 +172,7 @@ public class DurableChat implements
                     text += strings[i] + " ";
                 }
                 System.out.println(text);
+                
             }
             catch (javax.jms.JMSException jmse)
             {

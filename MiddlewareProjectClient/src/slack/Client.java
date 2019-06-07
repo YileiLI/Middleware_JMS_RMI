@@ -53,30 +53,32 @@ public class Client {
 		    boolean flag = true;
 		    java.io.BufferedReader stdin =
 	                new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+		    if (args.length != 0) {
+                for (int i = 0; i < args.length; i++) {
+                    String arg = args[i];
+
+
+                    if (arg.equals("-u")) {
+                        if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
+                            username = args[++i];
+                        }
+                        continue;
+                    }
+
+                    if (arg.equals("-p")) {
+                        if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
+                            password = args[++i];
+                            
+                            }
+                        }
+                        
+                        continue;
+                    }
+            }
+		    boolean flag2 = false;
 		    while (flag) {
-		        if (args.length != 0) {
-		            for (int i = 0; i < args.length; i++) {
-		                String arg = args[i];
-
-
-		                if (arg.equals("-u")) {
-		                    if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
-		                        username = args[++i];
-		                    }
-		                    continue;
-		                }
-
-		                if (arg.equals("-p")) {
-		                    if (!(i == args.length - 1 || args[i+1].startsWith("-"))) {
-		                        password = args[++i];
-		                        
-		                        }
-		                    }
-		                    
-		                    continue;
-		                }
-                }
-                    if (username.equals("")) {
+		        
+                    if (username.equals("")||flag2) {
                         System.out.println("Please enter the username:");
                         String s = stdin.readLine();
 
@@ -85,7 +87,7 @@ public class Client {
                             username = s;
                         }
                     }
-                    if (password.equals("")) {
+                    if (password.equals("")||flag2) {
                         System.out.println("Please enter the password:");
                         String s = stdin.readLine();
 
@@ -102,6 +104,7 @@ public class Client {
                     System.out.println("Welcome back " + pseudo);
                 }else {
                     System.out.println("Please try again. \n");
+                    flag2 = true;
                 }
                 
             }
